@@ -1,6 +1,6 @@
 import { jsx } from '@emotion/core';
 import theme from '../theme';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { html as io } from '../io';
 
 interface IconButtonProps {
@@ -16,7 +16,8 @@ async function sendIcon(name, url) {
 }
 
 function IconButton({ name, style, version }: IconButtonProps) {
-  const url = `https://cdn.jsdelivr.net/npm/ionicons@${version}/dist/ionicons/svg/${name}.svg`;
+  const [status, setStatus] = useState('is-loading');
+  const url = `https://cdn.jsdelivr.net/npm/ionicons@${version}/dist/svg/${name}.svg`;
 
   return (
     <button
@@ -32,7 +33,6 @@ function IconButton({ name, style, version }: IconButtonProps) {
         appearance: 'none',
         fontSize: '24px',
         outline: 0,
-        animation: 'fadeIn 200ms ease-in-out',
         '&:hover': {
           background: 'rgba(0, 0, 0, 0.06)',
         },
@@ -41,8 +41,15 @@ function IconButton({ name, style, version }: IconButtonProps) {
         },
         ...style,
       }}
+      className={status}
     >
-      <i className={`ion ion-${name}`}></i>
+      <img
+        src={url}
+        width={24}
+        height={24}
+        onLoad={() => setStatus('is-loaded')}
+        onError={() => setStatus('is-error')}
+      />
     </button>
   );
 }

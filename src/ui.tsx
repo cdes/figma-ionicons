@@ -9,68 +9,25 @@ import useSearch from './use-search';
 import IconsContext from './icons-context';
 import { FixedSizeGrid as Grid } from 'react-window';
 
-let version;
+let version = 5;
 
 function App() {
   const [query, setQuery] = useState(' ');
   const [loading, setLoading] = useState(true);
   const [meta, setMeta] = useState([]);
-  const [css, setCSS] = useState('');
   const [isMD, setMD] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const packageResponse = await fetch(
-        'https://data.jsdelivr.com/v1/package/npm/ionicons'
+      const metaResponse = await fetch(
+        `https://cdn.jsdelivr.net/npm/ionicons@5/dist/ionicons.json`
       );
-      const packageJson = await packageResponse.json();
 
-      version = packageJson.tags.latest;
+      const metaText = await metaResponse.json();
 
-      const data = await Promise.all([
-        fetch(
-          `https://cdn.jsdelivr.net/npm/ionicons@${version}/dist/css/ionicons.min.css`
-        ),
-        fetch(
-          `https://cdn.jsdelivr.net/gh/ionic-team/ionicons@${version}/src/data.json`
-        ),
-      ]);
-
-      const [cssResponse, metaResponse] = data;
-
-      const texts = await Promise.all([
-        cssResponse.text(),
-        metaResponse.json(),
-      ]);
-
-      const json = texts[1].icons.map(({ icons, tags }) => {
-        if (icons[0].startsWith('logo-')) {
-          return [
-            {
-              name: icons[0],
-              tags: [...tags, 'logo'],
-            },
-          ];
-        }
-
-        return [
-          {
-            name: icons[0],
-            tags: [...tags, 'ios'],
-          },
-          {
-            name: icons[1],
-            tags: [...tags, 'md'],
-          },
-        ];
-      });
-
-      const merged = [].concat.apply([], json);
-
-      setMeta(merged);
+      setMeta(metaText.icons);
       setLoading(false);
       setQuery('');
-      setCSS(texts[0]);
     })();
   }, []);
 
@@ -94,18 +51,6 @@ function App() {
         </div>
       ) : (
         <React.Fragment>
-          <style>{css}</style>
-          <style>
-            {`
-              @font-face {
-                font-family: "Ionicons";
-                src: url("https://cdn.jsdelivr.net/npm/ionicons@${version}/dist/fonts/ionicons.eot?v=4.6.3");
-                src: url("https://cdn.jsdelivr.net/npm/ionicons@${version}/dist/fonts/ionicons.eot?v=4.6.3#iefix") format("embedded-opentype"), url("https://cdn.jsdelivr.net/npm/ionicons@${version}/dist/fonts/ionicons.woff2?v=4.6.3") format("woff2"), url("https://cdn.jsdelivr.net/npm/ionicons@${version}/dist/fonts/ionicons.woff?v=4.6.3") format("woff"), url("https://cdn.jsdelivr.net/npm/ionicons@${version}/dist/fonts/ionicons.ttf?v=4.6.3") format("truetype"), url("https://cdn.jsdelivr.net/npm/ionicons@${version}/dist/fonts/ionicons.svg?v=4.6.3#Ionicons") format("svg");
-                font-weight: normal;
-                font-style: normal;
-              }
-              `}
-          </style>
           <Global
             styles={{ body: { margin: 0, fontFamily: 'Inter, sans-serif' } }}
           />
@@ -134,7 +79,7 @@ function App() {
                   <IconButton
                     name={icon.name}
                     style={style}
-                    version={version}
+                    version={version.toString()}
                   />
                 );
               }}
