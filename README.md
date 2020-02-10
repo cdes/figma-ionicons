@@ -1,2 +1,2 @@
-# Figma Plugin: Material Design Icons (Community)
+# Figma Plugin: Ionicons
 
